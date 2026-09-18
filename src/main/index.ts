@@ -1,37 +1,55 @@
 import path from "node:path";
 
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 
+import type { VaultTree } from "../shared/vault";
 import { startVault } from "./vault";
 
 const VAULT_ROOT = "/Users/rony/Desktop/Vault";
 
-const createWindow = () => {
-  const win = new BrowserWindow({
-    height: 720,
-    titleBarStyle: "hiddenInset",
-    trafficLightPosition: { x: 16, y: 16 },
-    width: 1100,
-  });
-
-  const url = process.env["ELECTRON_RENDERER_URL"];
-
-  return url
-    ? win.loadURL(url)
-    : win.loadFile(path.join(import.meta.dirname, "../renderer/index.html"));
-};
-
 const start = async () => {
   await app.whenReady();
 
-  const stopVault = await startVault(
+  const vault = await startVault(
     VAULT_ROOT,
     path.join(app.getPath("userData"), "vault-index.json")
   );
 
+  ipcMain.handle("vault:tree", () => vault.getTree());
+
   app.on("will-quit", () => {
-    void stopVault();
+    void vault.stop();
   });
+
+  const createWindow = () => {
+    const win = new BrowserWindow({
+      height: 720,
+      titleBarStyle: "hiddenInset",
+      trafficLightPosition: { x: 16, y: 16 },
+      webPreferences: {
+        preload: path.join(import.meta.dirname, "../preload/index.mjs"),
+        sandbox: false,
+      },
+      width: 1100,
+    });
+
+    const sendTree = (tree: VaultTree) => {
+      if (win.isDestroyed()) {
+        return;
+      }
+
+      win.webContents.send("vault:changed", tree);
+    };
+
+    const unsubscribe = vault.onChange(sendTree);
+    win.on("closed", unsubscribe);
+
+    const url = process.env["ELECTRON_RENDERER_URL"];
+
+    return url
+      ? win.loadURL(url)
+      : win.loadFile(path.join(import.meta.dirname, "../renderer/index.html"));
+  };
 
   await createWindow();
 

@@ -4,6 +4,8 @@ import path from "node:path";
 
 import { watch } from "chokidar";
 
+import type { VaultTree } from "../shared/vault";
+
 interface VaultFile {
   mtimeMs: number;
   size: number;
@@ -13,6 +15,17 @@ interface VaultIndex {
   files: Record<string, VaultFile>;
   vaultRoot: string;
 }
+
+interface Vault {
+  getTree: () => Promise<VaultTree>;
+  onChange: (listener: (tree: VaultTree) => void) => () => void;
+  stop: () => Promise<void>;
+}
+
+const emptyTree = (): VaultTree => ({
+  dirs: [],
+  files: [],
+});
 
 const toPosixRelative = (vaultRoot: string, filePath: string) => {
   const absolutePath = path.isAbsolute(filePath)
@@ -138,19 +151,51 @@ const diffFiles = (
   };
 };
 
-export const startVault = async (vaultRoot: string, indexPath: string) => {
+export const startVault = async (
+  vaultRoot: string,
+  indexPath: string
+): Promise<Vault> => {
   console.log("[vault] start", { indexPath, vaultRoot });
 
   try {
     await access(vaultRoot);
   } catch {
     console.log("[vault] folder missing", vaultRoot);
-    return () => Promise.resolve();
+
+    const listeners = new Set<(tree: VaultTree) => void>();
+
+    return {
+      getTree: () => Promise.resolve(emptyTree()),
+      onChange: (listener) => {
+        listeners.add(listener);
+
+        return () => {
+          listeners.delete(listener);
+        };
+      },
+      stop: () => Promise.resolve(),
+    };
   }
 
   const previous = await loadFiles(indexPath, vaultRoot);
   const current = new Map<string, VaultFile>();
+  const dirs = new Set<string>();
+  const listeners = new Set<(tree: VaultTree) => void>();
+  const ready = Promise.withResolvers<true>();
   let live = false;
+
+  const snapshot = (): VaultTree => ({
+    dirs: [...dirs].toSorted(),
+    files: [...current.keys()].toSorted(),
+  });
+
+  const emit = () => {
+    const tree = snapshot();
+
+    for (const listener of listeners) {
+      listener(tree);
+    }
+  };
 
   console.log("[vault] previous", Object.fromEntries(previous));
 
@@ -179,9 +224,26 @@ export const startVault = async (vaultRoot: string, indexPath: string) => {
     const relativePath = toPosixRelative(vaultRoot, filePath);
 
     if (event === "addDir" || event === "unlinkDir") {
-      if (live) {
-        console.log(`[vault] ${event}`, relativePath);
+      if (relativePath === "") {
+        return;
       }
+
+      if (event === "addDir") {
+        dirs.add(relativePath);
+      } else {
+        for (const dir of dirs) {
+          if (dir === relativePath || dir.startsWith(`${relativePath}/`)) {
+            dirs.delete(dir);
+          }
+        }
+      }
+
+      if (!live) {
+        return;
+      }
+
+      console.log(`[vault] ${event}`, relativePath);
+      emit();
       return;
     }
 
@@ -217,6 +279,7 @@ export const startVault = async (vaultRoot: string, indexPath: string) => {
       console.log(`[vault] ${event}`, relativePath, current.get(relativePath));
     }
 
+    emit();
     void persist();
   });
 
@@ -232,8 +295,23 @@ export const startVault = async (vaultRoot: string, indexPath: string) => {
       ...diff,
       files: Object.fromEntries(current),
     });
+    ready.resolve(true);
+    emit();
     void persist();
   });
 
-  return () => watcher.close();
+  return {
+    getTree: async () => {
+      await ready.promise;
+      return snapshot();
+    },
+    onChange: (listener) => {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    stop: () => watcher.close(),
+  };
 };
