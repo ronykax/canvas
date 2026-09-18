@@ -29,10 +29,10 @@ export const App = () => (
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col gap-0.5 overflow-auto px-4 pt-4">
+        <div className="scroll-fade scroll-fade-25 flex flex-1 flex-col gap-px overflow-auto px-4 py-4">
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200"
+            className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200/50"
           >
             <HugeiconsIcon
               icon={ChevronRightIcon}
@@ -44,7 +44,7 @@ export const App = () => (
 
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200"
+            className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200/50"
           >
             <HugeiconsIcon
               icon={ChevronDownIcon}
@@ -69,7 +69,7 @@ export const App = () => (
 
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg p-2 pl-8 text-sm hover:bg-zinc-200"
+            className="flex items-center gap-2 rounded-lg p-2 pl-8 text-sm hover:bg-zinc-200/50"
           >
             <HugeiconsIcon
               icon={StickyNote03Icon}
@@ -81,7 +81,7 @@ export const App = () => (
 
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg p-2 pl-8 text-sm hover:bg-zinc-200"
+            className="flex items-center gap-2 rounded-lg p-2 pl-8 text-sm hover:bg-zinc-200/50"
           >
             <HugeiconsIcon
               icon={ChevronRightIcon}
@@ -93,7 +93,7 @@ export const App = () => (
 
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200"
+            className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200/50"
           >
             <HugeiconsIcon
               icon={StickyNote03Icon}
@@ -107,14 +107,14 @@ export const App = () => (
             <button
               key={i}
               type="button"
-              className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200"
+              className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200/50"
             >
               <HugeiconsIcon
                 icon={StickyNote03Icon}
                 strokeWidth={2}
                 className="size-4"
               />
-              Random
+              Untitled {i + 1}
             </button>
           ))}
         </div>
