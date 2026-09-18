@@ -1,1 +1,1 @@
-export const App = () => "hello world";
+export const App = () => <div />;

@@ -30,12 +30,12 @@ oklch(L C H)
 oklch(L C H / alpha)
 ```
 
-| Channel | Range | Description |
-| --- | --- | --- |
-| L (Lightness) | 0–1 | 0 = black, 1 = white. Perceptually uniform. |
-| C (Chroma) | 0–~0.4 | Colorfulness. 0 = gray. Max depends on L and H. |
-| H (Hue) | 0–360 | Hue angle in degrees. |
-| alpha | 0–1 | Optional transparency. Slash syntax. |
+| Channel       | Range  | Description                                     |
+| ------------- | ------ | ----------------------------------------------- |
+| L (Lightness) | 0–1    | 0 = black, 1 = white. Perceptually uniform.     |
+| C (Chroma)    | 0–~0.4 | Colorfulness. 0 = gray. Max depends on L and H. |
+| H (Hue)       | 0–360  | Hue angle in degrees.                           |
+| alpha         | 0–1    | Optional transparency. Slash syntax.            |
 
 ```css
 oklch(0.637 0.237 25.331)
@@ -46,25 +46,25 @@ oklch(0.8 0.05 200 / 0.5)
 
 ## Key Thresholds
 
-| Rule | Value |
-| --- | --- |
-| Light/dark boundary | L > 0.6 = light background → use dark text |
-| Lightness gap (light bg) | Foreground L < 0.45 when background L > 0.85 |
-| Lightness gap (dark bg) | Foreground L > 0.75 when background L < 0.25 |
-| Hue drift threshold | > 10° spread across palette steps = visible drift |
-| APCA normal text | \|Lc\| >= 60 to pass, >= 75 for pass+ |
-| WCAG 2 normal text | 4.5:1 AA, 7:1 AAA |
-| Contrast fix | Adjust L only — chroma has negligible effect |
+| Rule                     | Value                                             |
+| ------------------------ | ------------------------------------------------- |
+| Light/dark boundary      | L > 0.6 = light background → use dark text        |
+| Lightness gap (light bg) | Foreground L < 0.45 when background L > 0.85      |
+| Lightness gap (dark bg)  | Foreground L > 0.75 when background L < 0.25      |
+| Hue drift threshold      | > 10° spread across palette steps = visible drift |
+| APCA normal text         | \|Lc\| >= 60 to pass, >= 75 for pass+             |
+| WCAG 2 normal text       | 4.5:1 AA, 7:1 AAA                                 |
+| Contrast fix             | Adjust L only — chroma has negligible effect      |
 
 ## Review Output Format
 
 Always present color changes as a markdown table with **Before** and **After** columns. Include **every color that was changed** — not just a subset. Never list findings as separate "Before:" / "After:" lines outside of a table.
 
-| Before | After |
-| --- | --- |
-| `color: #3b82f6` | `color: oklch(0.623 0.188 259.815)` |
-| Same absolute C across hues | Same C% of each hue's max chroma |
-| No sRGB fallback for P3 color | `@media (color-gamut: p3)` wrapper |
+| Before                        | After                               |
+| ----------------------------- | ----------------------------------- |
+| `color: #3b82f6`              | `color: oklch(0.623 0.188 259.815)` |
+| Same absolute C across hues   | Same C% of each hue's max chroma    |
+| No sRGB fallback for P3 color | `@media (color-gamut: p3)` wrapper  |
 
 This keeps feedback scannable and diff-friendly. Each row is a self-contained change the developer can act on independently.
 

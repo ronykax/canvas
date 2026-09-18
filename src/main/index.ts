@@ -2,35 +2,36 @@ import path from "node:path";
 
 import { app, BrowserWindow } from "electron";
 
-const createWindow = (): void => {
+const createWindow = () => {
   const win = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 720,
+    titleBarStyle: "hiddenInset",
+    trafficLightPosition: { x: 16, y: 16 },
+    width: 1100,
   });
 
-  if (process.env["ELECTRON_RENDERER_URL"]) {
-    win.loadURL(process.env["ELECTRON_RENDERER_URL"]);
-  } else {
-    win.loadFile(path.join(import.meta.dirname, "../renderer/index.html"));
-  }
+  const url = process.env["ELECTRON_RENDERER_URL"];
+
+  return url
+    ? win.loadURL(url)
+    : win.loadFile(path.join(import.meta.dirname, "../renderer/index.html"));
 };
 
-const start = async (): Promise<void> => {
+const start = async () => {
   await app.whenReady();
-  createWindow();
+  await createWindow();
 
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+  app.on("activate", async () => {
+    const load = BrowserWindow.getAllWindows().length
+      ? Promise.resolve()
+      : createWindow();
+
+    await load;
   });
 };
 
-// electron only emits ready after the entry module finishes; top-level await deadlocks
 void start();
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
+app.on("window-all-closed", () =>
+  process.platform === "darwin" ? undefined : app.quit()
+);
