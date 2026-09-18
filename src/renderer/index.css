@@ -1,1 +1,50 @@
 @import "tailwindcss";
+
+:root {
+  /* customize these three */
+  --accent: oklch(0.5 0.17 260);
+  --primary: oklch(0.27 0.025 270);
+  --background: oklch(0.972 0.006 95);
+}
+
+@theme inline {
+  --color-accent: var(--accent);
+  --color-primary: var(--primary);
+  --color-background: var(--background);
+
+  --color-accent-foreground: oklch(
+    from var(--accent) clamp(0.15, calc((0.6 - l) * 1000), 0.96) 0.01 h
+  );
+  --color-primary-foreground: oklch(
+    from var(--primary) clamp(0.15, calc((0.6 - l) * 1000), 0.96) 0.01 h
+  );
+  --color-foreground: oklch(
+    from var(--background) clamp(0.15, calc((0.6 - l) * 1000), 0.96)
+      calc(c * 0.5) h
+  );
+
+  --color-muted: color-mix(in oklab, var(--primary) 8%, var(--background));
+  --color-muted-foreground: color-mix(
+    in oklab,
+    var(--primary) 82%,
+    var(--background)
+  );
+  --color-border: color-mix(in oklab, var(--primary) 12%, var(--background));
+  --color-ring: var(--accent);
+}
+
+@theme {
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
