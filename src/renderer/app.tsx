@@ -30,6 +30,7 @@ export const App = () => (
         </div>
 
         <div className="scroll-fade scroll-fade-25 flex flex-1 flex-col gap-px overflow-auto px-4 py-4">
+          {/* closed folder (top level) */}
           <button
             type="button"
             className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200/50"
@@ -42,6 +43,7 @@ export const App = () => (
             Random
           </button>
 
+          {/* open folder (top level) */}
           <button
             type="button"
             className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200/50"
@@ -54,7 +56,7 @@ export const App = () => (
             Projects
           </button>
 
-          {/* selected */}
+          {/* canvas (inside the open folder) (selected) */}
           <button
             type="button"
             className="flex items-center gap-2 rounded-lg bg-zinc-200 p-2 pl-8 text-sm"
@@ -67,6 +69,7 @@ export const App = () => (
             Euclase
           </button>
 
+          {/* canvas (inside the open folder) (not selected) */}
           <button
             type="button"
             className="flex items-center gap-2 rounded-lg p-2 pl-8 text-sm hover:bg-zinc-200/50"
@@ -79,6 +82,7 @@ export const App = () => (
             ChibeeU
           </button>
 
+          {/* closed folder (inside the open folder) */}
           <button
             type="button"
             className="flex items-center gap-2 rounded-lg p-2 pl-8 text-sm hover:bg-zinc-200/50"
@@ -91,6 +95,7 @@ export const App = () => (
             Old
           </button>
 
+          {/* canvas (top level) */}
           <button
             type="button"
             className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200/50"
@@ -103,6 +108,7 @@ export const App = () => (
             Random
           </button>
 
+          {/* canvases (top level) */}
           {Array.from({ length: 100 }).map((_, i) => (
             <button
               key={i}
