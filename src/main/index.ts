@@ -2,6 +2,10 @@ import path from "node:path";
 
 import { app, BrowserWindow } from "electron";
 
+import { startVault } from "./vault";
+
+const VAULT_ROOT = "/Users/rony/Desktop/Vault";
+
 const createWindow = () => {
   const win = new BrowserWindow({
     height: 720,
@@ -19,6 +23,16 @@ const createWindow = () => {
 
 const start = async () => {
   await app.whenReady();
+
+  const stopVault = await startVault(
+    VAULT_ROOT,
+    path.join(app.getPath("userData"), "vault-index.json")
+  );
+
+  app.on("will-quit", () => {
+    void stopVault();
+  });
+
   await createWindow();
 
   app.on("activate", async () => {
