@@ -1,6 +1,163 @@
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  LayoutLeftIcon,
+  Redo03Icon,
+  SearchIcon,
+  StickyNote03Icon,
+  Undo03Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+
 export const App = () => (
-  <div className="h-screen w-full">
-    <div className="h-full w-xs bg-red-400" />
-    <div className="h-full flex-1" />
-  </div>
+  <>
+    <div className="w-full">
+      {/* sidebar */}
+      <div className="flex h-screen w-60 flex-col border-r border-r-zinc-200 bg-zinc-100 pt-12">
+        <div className="px-4">
+          {/* search button */}
+          <button
+            type="button"
+            className="flex w-full items-center gap-2 rounded-lg bg-zinc-200 p-2 text-sm hover:bg-zinc-300"
+          >
+            <HugeiconsIcon
+              icon={SearchIcon}
+              strokeWidth={2}
+              className="size-4"
+            />
+            Search
+          </button>
+        </div>
+
+        <div className="flex flex-1 flex-col gap-0.5 overflow-auto px-4 pt-4">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200"
+          >
+            <HugeiconsIcon
+              icon={ChevronRightIcon}
+              strokeWidth={2}
+              className="size-4"
+            />
+            Random
+          </button>
+
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200"
+          >
+            <HugeiconsIcon
+              icon={ChevronDownIcon}
+              strokeWidth={2}
+              className="size-4"
+            />
+            Projects
+          </button>
+
+          {/* selected */}
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg bg-zinc-200 p-2 pl-8 text-sm"
+          >
+            <HugeiconsIcon
+              icon={StickyNote03Icon}
+              strokeWidth={2}
+              className="size-4"
+            />
+            Euclase
+          </button>
+
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg p-2 pl-8 text-sm hover:bg-zinc-200"
+          >
+            <HugeiconsIcon
+              icon={StickyNote03Icon}
+              strokeWidth={2}
+              className="size-4"
+            />
+            ChibeeU
+          </button>
+
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg p-2 pl-8 text-sm hover:bg-zinc-200"
+          >
+            <HugeiconsIcon
+              icon={ChevronRightIcon}
+              strokeWidth={2}
+              className="size-4"
+            />
+            Old
+          </button>
+
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200"
+          >
+            <HugeiconsIcon
+              icon={StickyNote03Icon}
+              strokeWidth={2}
+              className="size-4"
+            />
+            Random
+          </button>
+
+          {Array.from({ length: 100 }).map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200"
+            >
+              <HugeiconsIcon
+                icon={StickyNote03Icon}
+                strokeWidth={2}
+                className="size-4"
+              />
+              Random
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* canvas */}
+      <div className="h-full flex-1" />
+    </div>
+
+    {/* top bar */}
+    <div className="app-drag fixed top-0 left-0 flex h-12 w-full">
+      {/* left */}
+      <div className="flex w-60 justify-end p-2">
+        <button
+          type="button"
+          className="app-no-drag rounded-lg p-2 hover:bg-zinc-200"
+        >
+          <HugeiconsIcon
+            icon={LayoutLeftIcon}
+            strokeWidth={2}
+            className="size-4"
+          />
+        </button>
+      </div>
+
+      {/* right */}
+      <div className="flex flex-1 items-center p-2">
+        <button
+          type="button"
+          className="app-no-drag rounded-lg p-2 hover:bg-zinc-200"
+        >
+          <HugeiconsIcon icon={Undo03Icon} strokeWidth={2} className="size-4" />
+        </button>
+
+        <button
+          type="button"
+          className="app-no-drag rounded-lg p-2 hover:bg-zinc-200"
+        >
+          <HugeiconsIcon icon={Redo03Icon} strokeWidth={2} className="size-4" />
+        </button>
+
+        <span className="ml-4 text-sm font-medium">Euclase</span>
+      </div>
+    </div>
+  </>
 );
