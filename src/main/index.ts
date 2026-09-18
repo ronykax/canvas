@@ -15,14 +15,19 @@ const createWindow = (): void => {
   }
 };
 
-await app.whenReady();
-createWindow();
+const start = async (): Promise<void> => {
+  await app.whenReady();
+  createWindow();
 
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+};
+
+// electron only emits ready after the entry module finishes; top-level await deadlocks
+void start();
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
