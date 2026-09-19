@@ -20,12 +20,6 @@
 - Renderer files live next to `index.html` at `src/renderer/` — not `src/renderer/src/`.
 - `npm run check` / `npm run fix` = ultracite (oxlint + oxfmt).
 
-## Canvas
-
-- Infinite canvas. User documents are `.canvas` files. App source (`.ts`, `.tsx`, etc.) is fine.
-- Format is JSON Canvas 1.0, including `file` nodes. Spec: https://jsoncanvas.org/spec/1.0/
-- Read `docs/canvas.md` before canvas product or format work.
-
 ## UI
 
 - Design tokens live in `src/renderer/index.css`. Use those classes (`bg-background`, `text-foreground`, `border-border`, `bg-muted`, …). Do not add or overwrite `@theme` / `:root` tokens (no `token-*` overrides).
@@ -36,3 +30,4 @@
 `docs/` is not auto-loaded. Read the relevant file before work:
 
 - `docs/canvas.md` — product and `.canvas` format
+- `docs/ultracite.md` — code standards (Ultracite)

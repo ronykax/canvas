@@ -1,6 +1,6 @@
 # Canvas
 
-Infinite canvas app. Open and save `.canvas` files. The sidebar lists those canvases (and folders that contain them); other files are ignored, and titles omit the `.canvas` suffix.
+Infinite canvas app. Open and save `.canvas` files. The sidebar lists those canvases (and folders that contain them); other files are ignored, and titles omit the `.canvas` suffix. Repo source (`.ts`, `.tsx`, etc.) is app code, not a canvas.
 
 ## Format
 
