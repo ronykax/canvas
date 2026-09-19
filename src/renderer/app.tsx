@@ -11,6 +11,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Fragment, useEffect, useState } from "react";
 
 import type { VaultApi, VaultTree } from "../shared/vault";
+import { Canvas } from "./canvas";
 
 declare global {
   interface Window {
@@ -230,20 +231,7 @@ export const App = () => {
         </div>
 
         {/* canvas */}
-        <div className="h-screen w-full flex-1 px-28">
-          <div className="w-md -translate-y-16 rounded-lg bg-red-300 p-4">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
-            <br />
-            <br />
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
-          </div>
-        </div>
+        <Canvas />
       </div>
 
       {/* top bar */}
