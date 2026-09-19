@@ -201,7 +201,7 @@ export const App = () => {
 
   return (
     <>
-      <div className="w-full">
+      <div className="flex w-full">
         {/* sidebar */}
         <div className="flex h-screen w-60 flex-col border-r border-r-zinc-200 bg-zinc-100 pt-12">
           <div className="px-4">
@@ -230,7 +230,20 @@ export const App = () => {
         </div>
 
         {/* canvas */}
-        <div className="h-full flex-1" />
+        <div className="h-screen w-full flex-1 px-28">
+          <div className="w-md -translate-y-16 rounded-lg bg-red-300 p-4">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat.
+            <br />
+            <br />
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat.
+          </div>
+        </div>
       </div>
 
       {/* top bar */}
@@ -250,7 +263,7 @@ export const App = () => {
         </div>
 
         {/* right */}
-        <div className="flex flex-1 items-center p-2">
+        <div className="relative flex flex-1 items-center bg-linear-to-b from-white to-white/90 p-2">
           <button
             type="button"
             className="app-no-drag rounded-lg p-2 hover:bg-zinc-200"
@@ -274,6 +287,8 @@ export const App = () => {
           </button>
 
           <span className="ml-4 text-sm font-medium">Euclase</span>
+
+          <div className="absolute -bottom-12 left-0 h-12 w-full bg-linear-to-b from-white/90 to-transparent" />
         </div>
       </div>
     </>
