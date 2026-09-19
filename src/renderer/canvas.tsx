@@ -86,7 +86,38 @@ export const Canvas = () => {
     },
   ]);
 
-  void [camera, setCamera, nodes, setNodes];
+  void [setCamera, nodes, setNodes];
 
-  return <div className="flex-1">hello</div>;
+  return (
+    <div className="relative flex-1 overflow-hidden">
+      <div
+        className="absolute"
+        style={{
+          transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`,
+        }}
+      >
+        {nodes.map((node) => {
+          switch (node.type) {
+            case "text":
+              return (
+                <div
+                  key={node.id}
+                  className="absolute rounded-lg bg-red-100 p-4"
+                  style={{
+                    left: node.x,
+                    top: node.y,
+                    width: node.width + "px",
+                    height: node.height + "px",
+                  }}
+                >
+                  {node.text}
+                </div>
+              );
+            default:
+              return null;
+          }
+        })}
+      </div>
+    </div>
+  );
 };
