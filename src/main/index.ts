@@ -10,10 +10,7 @@ const VAULT_ROOT = "/Users/rony/Desktop/Vault";
 const start = async () => {
   await app.whenReady();
 
-  const vault = await startVault(
-    VAULT_ROOT,
-    path.join(app.getPath("userData"), "vault-index.json")
-  );
+  const vault = await startVault(VAULT_ROOT);
 
   ipcMain.handle("vault:tree", () => vault.getTree());
 
