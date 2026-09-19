@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useGesture } from "@use-gesture/react";
+import { useRef, useState } from "react";
 
 interface Camera {
   scale: number;
@@ -41,13 +42,15 @@ interface TextNode extends NodeBase {
 type CanvasNode = FileNode | GroupNode | LinkNode | TextNode;
 
 export const Canvas = () => {
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+
   const [camera, setCamera] = useState<Camera>({
     scale: 1,
     x: 0,
     y: 0,
   });
 
-  const [nodes, setNodes] = useState<CanvasNode[]>([
+  const [nodes, _setNodes] = useState<CanvasNode[]>([
     {
       height: 400,
       id: "x7Kp2Q",
@@ -86,14 +89,44 @@ export const Canvas = () => {
     },
   ]);
 
-  void [setCamera, nodes, setNodes];
+  useGesture(
+    {
+      onWheel: ({ event, delta: [dx, dy] }) => {
+        event.preventDefault();
+
+        if (event.ctrlKey) {
+          const rect = canvasRef.current!.getBoundingClientRect();
+          const ox = event.clientX - rect.left;
+          const oy = event.clientY - rect.top;
+
+          setCamera((cam) => {
+            const scale = cam.scale * Math.exp(-dy / 100);
+            return {
+              scale,
+              x: ox - ((ox - cam.x) / cam.scale) * scale,
+              y: oy - ((oy - cam.y) / cam.scale) * scale,
+            };
+          });
+          return;
+        }
+
+        setCamera((cam) => ({ ...cam, x: cam.x - dx, y: cam.y - dy }));
+      },
+    },
+    {
+      target: canvasRef,
+      eventOptions: { passive: false },
+      wheel: { preventDefault: true },
+    }
+  );
 
   return (
-    <div className="relative flex-1 overflow-hidden">
+    <div className="relative flex-1 overflow-hidden" ref={canvasRef}>
       <div
-        className="absolute"
+        className="absolute bg-black"
         style={{
           transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`,
+          transformOrigin: "0 0",
         }}
       >
         {nodes.map((node) => {

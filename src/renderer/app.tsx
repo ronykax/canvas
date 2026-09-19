@@ -251,7 +251,7 @@ export const App = () => {
         </div>
 
         {/* right */}
-        <div className="relative flex flex-1 items-center bg-linear-to-b from-white to-white/95 p-2">
+        <div className="relative flex flex-1 items-center bg-linear-to-b from-white to-white/80 p-2">
           <button
             type="button"
             className="app-no-drag rounded-lg p-2 hover:bg-zinc-200"
@@ -276,7 +276,7 @@ export const App = () => {
 
           <span className="ml-4 text-sm font-medium">Euclase</span>
 
-          <div className="app-no-drag pointer-events-none absolute -bottom-12 left-0 h-12 w-full bg-linear-to-b from-white/95 to-transparent" />
+          <div className="app-no-drag pointer-events-none absolute -bottom-12 left-0 h-12 w-full bg-linear-to-b from-white/80 to-transparent" />
         </div>
       </div>
     </>
