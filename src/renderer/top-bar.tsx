@@ -1,6 +1,10 @@
 import {
+  ChevronDownIcon,
+  FileEmpty02Icon,
   LayoutLeftIcon,
+  Link03Icon,
   Redo03Icon,
+  TextIcon,
   Undo03Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -45,7 +49,7 @@ export const TopBar = ({
     <div className="flex w-60 justify-end p-2">
       <button
         type="button"
-        className="app-no-drag rounded-lg p-2 hover:bg-zinc-200"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
         onClick={() => setSidebarOpen((x) => !x)}
       >
         <HugeiconsIcon
@@ -62,19 +66,54 @@ export const TopBar = ({
 
       <button
         type="button"
-        className="app-no-drag rounded-lg p-2 hover:bg-zinc-200"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
       >
         <HugeiconsIcon icon={Undo03Icon} strokeWidth={2} className="size-4" />
       </button>
 
       <button
         type="button"
-        className="app-no-drag rounded-lg p-2 hover:bg-zinc-200"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
       >
         <HugeiconsIcon icon={Redo03Icon} strokeWidth={2} className="size-4" />
       </button>
 
-      <span className="ml-2.5 text-sm">Untitled</span>
+      <button
+        type="button"
+        className="app-no-drag mx-auto flex items-center gap-2 rounded-lg p-2 py-1 text-sm duration-100 hover:bg-zinc-100"
+      >
+        Untitled
+        <HugeiconsIcon
+          icon={ChevronDownIcon}
+          strokeWidth={2}
+          className="size-4"
+        />
+      </button>
+
+      <button
+        type="button"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
+      >
+        <HugeiconsIcon icon={TextIcon} strokeWidth={2} className="size-4" />
+      </button>
+
+      <button
+        type="button"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
+      >
+        <HugeiconsIcon
+          icon={FileEmpty02Icon}
+          strokeWidth={2}
+          className="size-4"
+        />
+      </button>
+
+      <button
+        type="button"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
+      >
+        <HugeiconsIcon icon={Link03Icon} strokeWidth={2} className="size-4" />
+      </button>
 
       <div className="app-no-drag pointer-events-none absolute -bottom-8 left-0 h-8 w-full" />
     </div>
