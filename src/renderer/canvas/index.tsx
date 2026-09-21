@@ -80,10 +80,13 @@ export const Canvas = ({ path }: CanvasProps) => {
   const offsetY = ((camera.y % gap) + gap) % gap;
 
   return (
-    <div className="relative flex-1 overflow-hidden" ref={canvasRef}>
+    <div
+      className="relative flex-1 overflow-hidden dark:bg-zinc-900 dark:text-white"
+      ref={canvasRef}
+    >
       <svg
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 size-full"
+        className="pointer-events-none absolute inset-0 size-full dark:text-white/75"
       >
         <defs>
           <pattern

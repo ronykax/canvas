@@ -1,10 +1,10 @@
 const PRESET_BG = {
-  "1": "bg-red-200",
-  "2": "bg-orange-200",
-  "3": "bg-yellow-200",
-  "4": "bg-green-200",
-  "5": "bg-cyan-200",
-  "6": "bg-purple-200",
+  "1": "bg-red-200 dark:bg-red-800",
+  "2": "bg-orange-200 dark:bg-orange-800",
+  "3": "bg-yellow-200 dark:bg-yellow-800",
+  "4": "bg-green-200 dark:bg-green-800",
+  "5": "bg-cyan-200 dark:bg-cyan-800",
+  "6": "bg-purple-200 dark:bg-purple-800",
 } as const;
 
 const PRESET_COLORS = {

@@ -121,7 +121,7 @@ const buildTree = ({ dirs, files }: VaultTree): TreeNode[] => {
 };
 
 const rowClass =
-  "flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200 duration-100";
+  "flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200 dark:hover:bg-zinc-800 dark:text-white duration-100";
 
 const TreeItems = ({
   collapsed,
@@ -169,7 +169,10 @@ const TreeItems = ({
         <button
           key={node.path}
           type="button"
-          className={cn(rowClass, selectedPath === node.path && "bg-zinc-200")}
+          className={cn(
+            rowClass,
+            selectedPath === node.path && "bg-zinc-200 dark:bg-zinc-800"
+          )}
           style={{ paddingLeft: 8 + depth * 24 }}
           onClick={() => onSelect(node.path)}
         >
@@ -222,14 +225,14 @@ export const Sidebar = ({
   return (
     <div
       className={cn(
-        "flex h-screen w-60 flex-col border-r border-r-zinc-200 bg-zinc-100 pt-12",
+        "flex h-screen w-60 flex-col border-r border-r-zinc-200 bg-zinc-100 pt-12 dark:border-r-zinc-800 dark:bg-zinc-900",
         !sidebarOpen && "hidden"
       )}
     >
       <div className="px-4">
         <button
           type="button"
-          className="flex w-full items-center gap-2 rounded-lg bg-zinc-200 p-2 text-sm hover:bg-zinc-300"
+          className="flex w-full items-center gap-2 rounded-lg bg-zinc-200 p-2 text-sm hover:bg-zinc-300 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700"
         >
           <HugeiconsIcon icon={SearchIcon} strokeWidth={2} className="size-4" />
           Search
