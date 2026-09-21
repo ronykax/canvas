@@ -13,7 +13,7 @@ const TopProgressiveBlur = () => {
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-20">
       {Array.from({ length: BLUR_LAYERS }, (_, i) => {
-        const blur = 1 * 2 ** (BLUR_LAYERS - 1 - i);
+        const blur = 0.5 * 2 ** (BLUR_LAYERS - 1 - i);
         const mask = `linear-gradient(to bottom, transparent ${(i - 1) * step}%, black ${i * step}%, black ${(i + 1) * step}%, transparent ${(i + 2) * step}%)`;
 
         return (

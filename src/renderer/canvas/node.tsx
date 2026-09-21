@@ -1,7 +1,7 @@
 import { cn } from "cn";
 import type { CSSProperties, ReactNode } from "react";
 
-import { colorOf } from "./color";
+import { colorClass, colorOf } from "./color";
 
 interface NodeBase {
   color?: string;
@@ -54,12 +54,15 @@ const isRemoteImage = (file: string) =>
 
 const nodeStyle = (node: CanvasNode): CSSProperties => {
   const style: CSSProperties = {
-    backgroundColor: colorOf(node.color),
     height: `${node.height}px`,
     left: `${node.x}px`,
     top: `${node.y}px`,
     width: `${node.width}px`,
   };
+
+  if (!colorClass(node.color)) {
+    style.backgroundColor = colorOf(node.color);
+  }
 
   if (node.type !== "group" || !node.background) {
     return style;
@@ -80,7 +83,8 @@ const nodeStyle = (node: CanvasNode): CSSProperties => {
 const nodeClassName = (node: CanvasNode) =>
   cn(
     "absolute overflow-hidden p-4",
-    node.type === "group" ? "rounded-xl" : "rounded-lg"
+    node.type === "group" ? "rounded-xl" : "rounded-lg",
+    colorClass(node.color)
   );
 
 const nodeBody = (node: CanvasNode): ReactNode => {
