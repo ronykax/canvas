@@ -417,7 +417,7 @@ export const Canvas = () => {
             case "text": {
               return (
                 <div key={node.id} className={className} style={style}>
-                  <div className="break-words whitespace-pre-wrap">
+                  <div className="wrap-break-word whitespace-pre-wrap">
                     {node.text}
                   </div>
                 </div>
