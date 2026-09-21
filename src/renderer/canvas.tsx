@@ -67,15 +67,6 @@ const PRESET_COLORS = {
   "6": "#a882ff",
 } as const;
 
-const EDGE_COLOR = "#d4d4d8";
-
-const NODE_SURFACE: Record<CanvasNode["type"], string> = {
-  file: "bg-purple-200",
-  group: "bg-zinc-100",
-  link: "bg-blue-200",
-  text: "bg-red-200",
-};
-
 const BACKGROUND_SIZE = {
   cover: "cover",
   ratio: "contain",
@@ -144,14 +135,16 @@ const DEMO_EDGES: CanvasEdge[] = [
     fromNode: "Qa9Lx3",
     fromSide: "bottom",
     id: "e2",
-    toEnd: "none",
+    toEnd: "arrow",
     toNode: "V2nH7k",
     toSide: "right",
   },
   {
+    fromEnd: "none",
     fromNode: "V2nH7k",
     fromSide: "top",
     id: "e3",
+    toEnd: "none",
     toNode: "m4Zt8R",
     toSide: "bottom",
   },
@@ -186,22 +179,22 @@ const nodeStyle = (node: CanvasNode): CSSProperties => {
     return style;
   }
 
-  const backgroundStyle = node.backgroundStyle ?? "cover";
+  style.backgroundImage = `url(${JSON.stringify(node.background)})`;
+  style.backgroundPosition = "center";
 
-  return {
-    ...style,
-    backgroundImage: `url(${JSON.stringify(node.background)})`,
-    backgroundPosition: "center",
-    backgroundRepeat: backgroundStyle === "repeat" ? "repeat" : "no-repeat",
-    backgroundSize: BACKGROUND_SIZE[backgroundStyle],
-  };
+  if (node.backgroundStyle) {
+    style.backgroundRepeat =
+      node.backgroundStyle === "repeat" ? "repeat" : "no-repeat";
+    style.backgroundSize = BACKGROUND_SIZE[node.backgroundStyle];
+  }
+
+  return style;
 };
 
 const nodeClassName = (node: CanvasNode) =>
   cn(
     "absolute overflow-hidden p-4",
-    node.type === "group" ? "rounded-xl" : "rounded-lg",
-    !node.color && NODE_SURFACE[node.type]
+    node.type === "group" ? "rounded-xl" : "rounded-lg"
   );
 
 const nodeBody = (node: CanvasNode): ReactNode => {
@@ -288,14 +281,14 @@ export const Canvas = () => {
         ))}
       </div>
       {edges.map((edge) => {
-        const color = colorOf(edge.color) ?? EDGE_COLOR;
+        const color = colorOf(edge.color);
 
         return (
           <Xarrow
             color={color}
             divContainerStyle={{ pointerEvents: "none" }}
             end={edge.toNode}
-            endAnchor={edge.toSide ?? "auto"}
+            endAnchor={edge.toSide}
             key={edge.id}
             labels={
               edge.label ? (
@@ -307,7 +300,7 @@ export const Canvas = () => {
             showHead={(edge.toEnd ?? "arrow") === "arrow"}
             showTail={edge.fromEnd === "arrow"}
             start={edge.fromNode}
-            startAnchor={edge.fromSide ?? "auto"}
+            startAnchor={edge.fromSide}
             strokeWidth={2}
           />
         );
