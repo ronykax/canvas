@@ -49,7 +49,7 @@ export const TopBar = ({
     <div className="flex w-60 justify-end p-2">
       <button
         type="button"
-        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-200"
         onClick={() => setSidebarOpen((x) => !x)}
       >
         <HugeiconsIcon
@@ -66,21 +66,21 @@ export const TopBar = ({
 
       <button
         type="button"
-        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-200"
       >
         <HugeiconsIcon icon={Undo03Icon} strokeWidth={2} className="size-4" />
       </button>
 
       <button
         type="button"
-        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-200"
       >
         <HugeiconsIcon icon={Redo03Icon} strokeWidth={2} className="size-4" />
       </button>
 
       <button
         type="button"
-        className="app-no-drag mx-auto flex items-center gap-2 rounded-lg p-2 py-1 text-sm duration-100 hover:bg-zinc-100"
+        className="app-no-drag mx-auto flex items-center gap-2 rounded-lg p-2 py-1 text-sm duration-100 hover:bg-zinc-200"
       >
         Untitled
         <HugeiconsIcon
@@ -92,14 +92,14 @@ export const TopBar = ({
 
       <button
         type="button"
-        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-200"
       >
         <HugeiconsIcon icon={TextIcon} strokeWidth={2} className="size-4" />
       </button>
 
       <button
         type="button"
-        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-200"
       >
         <HugeiconsIcon
           icon={FileEmpty02Icon}
@@ -110,7 +110,7 @@ export const TopBar = ({
 
       <button
         type="button"
-        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-100"
+        className="app-no-drag rounded-lg p-2 duration-100 hover:bg-zinc-200"
       >
         <HugeiconsIcon icon={Link03Icon} strokeWidth={2} className="size-4" />
       </button>
