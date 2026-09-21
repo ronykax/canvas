@@ -5,7 +5,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-const BLUR_LAYERS = 8;
+const BLUR_LAYERS = 6;
 
 const TopProgressiveBlur = () => {
   const step = 100 / (BLUR_LAYERS + 1);
@@ -13,7 +13,7 @@ const TopProgressiveBlur = () => {
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-24">
       {Array.from({ length: BLUR_LAYERS }, (_, i) => {
-        const blur = 0.5 * 2 ** (BLUR_LAYERS - 1 - i);
+        const blur = 1 * 2 ** (BLUR_LAYERS - 1 - i);
         const mask = `linear-gradient(to bottom, transparent ${(i - 1) * step}%, black ${i * step}%, black ${(i + 1) * step}%, transparent ${(i + 2) * step}%)`;
 
         return (
@@ -69,7 +69,9 @@ export const TopBar = () => (
         <HugeiconsIcon icon={Redo03Icon} strokeWidth={2} className="size-4" />
       </button>
 
-      <span className="ml-4 text-sm font-medium">Euclase</span>
+      <span className="ml-3 text-sm font-medium">Euclase</span>
+
+      <div className="app-no-drag pointer-events-none absolute -bottom-12 left-0 h-12 w-full" />
     </div>
   </div>
 );
