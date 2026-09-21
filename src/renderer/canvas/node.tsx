@@ -39,6 +39,7 @@ export type CanvasNode = FileNode | GroupNode | LinkNode | TextNode;
 
 interface NodeProps {
   node: CanvasNode;
+  selected: boolean;
 }
 
 const BACKGROUND_SIZE = {
@@ -80,10 +81,11 @@ const nodeStyle = (node: CanvasNode): CSSProperties => {
   return style;
 };
 
-const nodeClassName = (node: CanvasNode) =>
+const nodeClassName = (node: CanvasNode, selected: boolean) =>
   cn(
-    "absolute overflow-hidden p-4",
+    "canvas-node absolute overflow-hidden p-4",
     node.type === "group" ? "rounded-xl" : "rounded-lg",
+    selected && "ring-2 ring-zinc-900 ring-inset dark:ring-white",
     colorClass(node.color)
   );
 
@@ -97,7 +99,12 @@ const nodeBody = (node: CanvasNode): ReactNode => {
     case "file": {
       if (isRemoteImage(node.file)) {
         return (
-          <img alt="" className="size-full object-cover" src={node.file} />
+          <img
+            alt=""
+            className="size-full object-cover"
+            draggable={false}
+            src={node.file}
+          />
         );
       }
 
@@ -122,8 +129,12 @@ const nodeBody = (node: CanvasNode): ReactNode => {
   }
 };
 
-export const Node = ({ node }: NodeProps) => (
-  <div className={nodeClassName(node)} id={node.id} style={nodeStyle(node)}>
+export const Node = ({ node, selected }: NodeProps) => (
+  <div
+    className={nodeClassName(node, selected)}
+    id={node.id}
+    style={nodeStyle(node)}
+  >
     {nodeBody(node)}
   </div>
 );

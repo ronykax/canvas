@@ -15,6 +15,16 @@
   -webkit-app-region: no-drag;
 }
 
+.selection-area {
+  @apply border border-zinc-400 bg-zinc-300/25;
+}
+
+@media (prefers-color-scheme: dark) {
+  .selection-area {
+    @apply border border-zinc-700 bg-zinc-800/50;
+  }
+}
+
 /* scroll-fade — from shadcn/tailwind.css */
 @property --scroll-fade-t {
   syntax: "<length-percentage>";
