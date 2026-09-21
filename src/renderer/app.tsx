@@ -116,7 +116,7 @@ const buildTree = ({ dirs, files }: VaultTree): TreeNode[] => {
 };
 
 const rowClass =
-  "flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200/50";
+  "flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200";
 
 const TreeItems = ({ collapsed, depth, nodes, onToggle }: TreeItemsProps) => (
   <>
