@@ -77,6 +77,8 @@ const BACKGROUND_SIZE = {
   repeat: "auto",
 } as const;
 
+const DOT_GAP = 36;
+
 const isPresetColor = (color: string): color is keyof typeof PRESET_COLORS =>
   Object.hasOwn(PRESET_COLORS, color);
 
@@ -215,8 +217,37 @@ export const Canvas = ({ path }: CanvasProps) => {
     }
   );
 
+  const scale = Math.max(camera.scale, 0.1);
+  const gap = DOT_GAP * scale;
+  const offsetX = ((camera.x % gap) + gap) % gap;
+  const offsetY = ((camera.y % gap) + gap) % gap;
+
   return (
     <div className="relative flex-1 overflow-hidden" ref={canvasRef}>
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 size-full"
+      >
+        <defs>
+          <pattern
+            height={gap}
+            id="canvas-dots"
+            patternUnits="userSpaceOnUse"
+            width={gap}
+            x={offsetX}
+            y={offsetY}
+          >
+            <circle
+              cx={gap / 2}
+              cy={gap / 2}
+              fill="currentColor"
+              opacity={0.25}
+              r={scale + 0.5}
+            />
+          </pattern>
+        </defs>
+        <rect fill="url(#canvas-dots)" height="100%" width="100%" />
+      </svg>
       <div
         className="absolute"
         style={{
