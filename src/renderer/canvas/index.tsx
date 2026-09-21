@@ -2,6 +2,7 @@ import { useGesture } from "@use-gesture/react";
 import { SelectionArea } from "@viselect/react";
 import type { SelectionEvent } from "@viselect/react";
 import { useEffect, useRef, useState } from "react";
+import { Xwrapper } from "react-xarrows";
 
 import type { CanvasEdge } from "./edge";
 import { Edge } from "./edge";
@@ -17,6 +18,40 @@ interface Camera {
 interface CanvasProps {
   path: string | null;
 }
+
+interface DragStart {
+  scale: number;
+  starts: Record<string, { x: number; y: number }>;
+}
+
+const selectThreshold = 4;
+
+const isAdditive = (event: Event | null) =>
+  event instanceof MouseEvent &&
+  (event.shiftKey || event.metaKey || event.ctrlKey);
+
+const idsOf = (elements: { id: string }[]) =>
+  elements.map((element) => element.id);
+
+const movedNodes = (
+  nodes: CanvasNode[],
+  starts: DragStart["starts"],
+  dx: number,
+  dy: number
+) =>
+  nodes.map((node) => {
+    const start = starts[node.id];
+
+    if (!start) {
+      return node;
+    }
+
+    return {
+      ...node,
+      x: start.x + dx,
+      y: start.y + dy,
+    };
+  });
 
 const Dots = ({ scale, x, y }: Camera) => {
   const minScale = 0.1;
@@ -65,18 +100,114 @@ export const Canvas = ({ path }: CanvasProps) => {
   const [nodes, setNodes] = useState<CanvasNode[]>([]);
   const [edges, setEdges] = useState<CanvasEdge[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const dragRef = useRef<DragStart | null>(null);
+  const marquee = useRef(false);
+  const pressedNode = useRef<Element | null>(null);
+  const additive = useRef(false);
 
-  const onSelectStart = ({ selection }: SelectionEvent) => {
+  const publishSelection = (selection: SelectionEvent["selection"]) => {
+    // clearSelection emits before the store is emptied.
+    queueMicrotask(() => {
+      const selected = selection.getSelection();
+      const node = pressedNode.current;
+
+      // A plain click selects the node. Viselect toggles the only selected one off.
+      if (selected.length === 0 && node && !additive.current) {
+        selection.select(node, true);
+        setSelectedIds([node.id]);
+        return;
+      }
+
+      setSelectedIds(idsOf(selected));
+    });
+  };
+
+  const onBeforeStart = ({ event }: SelectionEvent) => {
+    marquee.current = false;
+    additive.current = isAdditive(event);
+    const target = event?.target;
+    pressedNode.current =
+      target instanceof Element ? target.closest(".canvas-node") : null;
+  };
+
+  const onBeforeDrag = ({ event, selection }: SelectionEvent) => {
+    const node = pressedNode.current;
+
+    if (!node) {
+      marquee.current = true;
+      return;
+    }
+
+    if (!selection.getSelection().includes(node)) {
+      if (!isAdditive(event)) {
+        selection.clearSelection(true, true);
+      }
+
+      selection.select(node);
+    }
+
+    return false;
+  };
+
+  const onSelectStart = ({ event, selection }: SelectionEvent) => {
+    if (!marquee.current && isAdditive(event)) {
+      return;
+    }
+
     selection.clearSelection(true, true);
-    setSelectedIds([]);
   };
 
-  const onSelectMove = ({ store }: SelectionEvent) => {
-    setSelectedIds(store.selected.map((element) => element.id));
+  const onSelectMove = ({ event, selection, store }: SelectionEvent) => {
+    if (!event) {
+      publishSelection(selection);
+      return;
+    }
+
+    setSelectedIds(idsOf(store.selected));
   };
 
-  const onSelectStop = ({ store }: SelectionEvent) => {
-    setSelectedIds(store.stored.map((element) => element.id));
+  const onSelectStop = ({ event, selection, store }: SelectionEvent) => {
+    if (!event) {
+      publishSelection(selection);
+      return;
+    }
+
+    setSelectedIds(idsOf(store.stored));
+  };
+
+  const onNodeDrag = (
+    id: string,
+    movementX: number,
+    movementY: number,
+    first: boolean
+  ) => {
+    if (first) {
+      const moving = new Set(selectedIds.includes(id) ? selectedIds : [id]);
+      const starts: DragStart["starts"] = {};
+
+      for (const node of nodes) {
+        if (moving.has(node.id)) {
+          starts[node.id] = { x: node.x, y: node.y };
+        }
+      }
+
+      dragRef.current = { scale: camera.scale, starts };
+    }
+
+    const drag = dragRef.current;
+
+    if (!drag || (movementX === 0 && movementY === 0)) {
+      return;
+    }
+
+    setNodes((current) =>
+      movedNodes(
+        current,
+        drag.starts,
+        movementX / drag.scale,
+        movementY / drag.scale
+      )
+    );
   };
 
   useEffect(() => {
@@ -130,33 +261,46 @@ export const Canvas = ({ path }: CanvasProps) => {
     >
       <Dots scale={camera.scale} x={camera.x} y={camera.y} />
       <SelectionArea
-        behaviour={{ intersect: "touch", startThreshold: 4 }}
+        behaviour={{
+          intersect: "cover",
+          startThreshold: { x: selectThreshold, y: selectThreshold },
+        }}
         className="absolute inset-0"
-        features={{ range: false, singleTap: { allow: false } }}
+        features={{
+          // Outside tap clears the selection. Off, and that tap never does.
+          deselectOnBlur: true,
+          range: false,
+          singleTap: { allow: true },
+        }}
+        onBeforeDrag={onBeforeDrag}
+        onBeforeStart={onBeforeStart}
         onMove={onSelectMove}
         onStart={onSelectStart}
         onStop={onSelectStop}
         selectables=".canvas-node"
         selectionAreaClass="selection-area"
       >
-        <div
-          className="absolute"
-          style={{
-            transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`,
-            transformOrigin: "0 0",
-          }}
-        >
-          {nodes.map((node) => (
-            <Node
-              key={node.id}
-              node={node}
-              selected={selectedIds.includes(node.id)}
-            />
+        <Xwrapper>
+          <div
+            className="absolute"
+            style={{
+              transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`,
+              transformOrigin: "0 0",
+            }}
+          >
+            {nodes.map((node) => (
+              <Node
+                key={node.id}
+                node={node}
+                onDrag={onNodeDrag}
+                selected={selectedIds.includes(node.id)}
+              />
+            ))}
+          </div>
+          {edges.map((edge) => (
+            <Edge edge={edge} key={edge.id} />
           ))}
-        </div>
-        {edges.map((edge) => (
-          <Edge edge={edge} key={edge.id} />
-        ))}
+        </Xwrapper>
       </SelectionArea>
     </div>
   );

@@ -1,5 +1,8 @@
+import { useGesture } from "@use-gesture/react";
 import { cn } from "cn";
+import { useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import { useXarrow } from "react-xarrows";
 
 import { colorClass, colorOf } from "./color";
 
@@ -39,6 +42,12 @@ export type CanvasNode = FileNode | GroupNode | LinkNode | TextNode;
 
 interface NodeProps {
   node: CanvasNode;
+  onDrag: (
+    id: string,
+    movementX: number,
+    movementY: number,
+    first: boolean
+  ) => void;
   selected: boolean;
 }
 
@@ -83,7 +92,7 @@ const nodeStyle = (node: CanvasNode): CSSProperties => {
 
 const nodeClassName = (node: CanvasNode, selected: boolean) =>
   cn(
-    "canvas-node absolute overflow-hidden p-4",
+    "canvas-node absolute touch-none overflow-hidden p-4",
     node.type === "group" ? "rounded-xl" : "rounded-lg",
     selected && "ring-2 ring-zinc-900 ring-inset dark:ring-white",
     colorClass(node.color)
@@ -129,12 +138,30 @@ const nodeBody = (node: CanvasNode): ReactNode => {
   }
 };
 
-export const Node = ({ node, selected }: NodeProps) => (
-  <div
-    className={nodeClassName(node, selected)}
-    id={node.id}
-    style={nodeStyle(node)}
-  >
-    {nodeBody(node)}
-  </div>
-);
+export const Node = ({ node, onDrag, selected }: NodeProps) => {
+  const nodeRef = useRef<HTMLDivElement | null>(null);
+  useXarrow();
+
+  useGesture(
+    {
+      onDrag: ({ first, movement: [movementX, movementY] }) => {
+        onDrag(node.id, movementX, movementY, first);
+      },
+    },
+    {
+      drag: { threshold: 4 },
+      target: nodeRef,
+    }
+  );
+
+  return (
+    <div
+      className={nodeClassName(node, selected)}
+      id={node.id}
+      ref={nodeRef}
+      style={nodeStyle(node)}
+    >
+      {nodeBody(node)}
+    </div>
+  );
+};
