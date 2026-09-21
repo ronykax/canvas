@@ -34,6 +34,7 @@ type TreeNode = TreeFile | TreeFolder;
 interface SidebarProps {
   onSelect: (path: string) => void;
   selectedPath: string | null;
+  sidebarOpen: boolean;
 }
 
 interface TreeItemsProps {
@@ -184,7 +185,11 @@ const TreeItems = ({
   </>
 );
 
-export const Sidebar = ({ onSelect, selectedPath }: SidebarProps) => {
+export const Sidebar = ({
+  onSelect,
+  selectedPath,
+  sidebarOpen,
+}: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(new Set<string>());
   const [tree, setTree] = useState<VaultTree>({ dirs: [], files: [] });
 
@@ -215,7 +220,12 @@ export const Sidebar = ({ onSelect, selectedPath }: SidebarProps) => {
   };
 
   return (
-    <div className="flex h-screen w-60 flex-col border-r border-r-zinc-200 bg-zinc-100 pt-12">
+    <div
+      className={cn(
+        "flex h-screen w-60 flex-col border-r border-r-zinc-200 bg-zinc-100 pt-12",
+        !sidebarOpen && "hidden"
+      )}
+    >
       <div className="px-4">
         <button
           type="button"

@@ -11,7 +11,7 @@ const TopProgressiveBlur = () => {
   const step = 100 / (BLUR_LAYERS + 1);
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-18">
+    <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-20">
       {Array.from({ length: BLUR_LAYERS }, (_, i) => {
         const blur = 1 * 2 ** (BLUR_LAYERS - 1 - i);
         const mask = `linear-gradient(to bottom, transparent ${(i - 1) * step}%, black ${i * step}%, black ${(i + 1) * step}%, transparent ${(i + 2) * step}%)`;
@@ -35,13 +35,18 @@ const TopProgressiveBlur = () => {
   );
 };
 
-export const TopBar = () => (
+export const TopBar = ({
+  setSidebarOpen,
+}: {
+  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => (
   <div className="app-drag fixed top-0 left-0 flex h-12 w-full">
     {/* left */}
     <div className="flex w-60 justify-end p-2">
       <button
         type="button"
         className="app-no-drag rounded-lg p-2 hover:bg-zinc-200"
+        onClick={() => setSidebarOpen((x) => !x)}
       >
         <HugeiconsIcon
           icon={LayoutLeftIcon}
@@ -71,7 +76,7 @@ export const TopBar = () => (
 
       <span className="ml-2.5 text-sm">Untitled</span>
 
-      {/* <div className="app-no-drag pointer-events-none absolute -bottom-12 left-0 h-12 w-full" /> */}
+      <div className="app-no-drag pointer-events-none absolute -bottom-8 left-0 h-8 w-full" />
     </div>
   </div>
 );
