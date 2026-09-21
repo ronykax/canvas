@@ -1,5 +1,5 @@
 import type { Stats } from "node:fs";
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { watch } from "chokidar";
@@ -9,6 +9,7 @@ import type { VaultTree } from "../shared/vault";
 interface Vault {
   getTree: () => Promise<VaultTree>;
   onChange: (listener: (tree: VaultTree) => void) => () => void;
+  read: (relativePath: string) => Promise<string>;
   stop: () => Promise<void>;
 }
 
@@ -16,6 +17,18 @@ const emptyTree = (): VaultTree => ({
   dirs: [],
   files: [],
 });
+
+const readCanvas = (vaultRoot: string, relativePath: string) => {
+  if (
+    !relativePath.endsWith(".canvas") ||
+    relativePath.includes("..") ||
+    path.isAbsolute(relativePath)
+  ) {
+    throw new Error("Invalid canvas path");
+  }
+
+  return readFile(path.join(vaultRoot, relativePath), "utf-8");
+};
 
 const toPosixRelative = (vaultRoot: string, filePath: string) => {
   const absolutePath = path.isAbsolute(filePath)
@@ -70,6 +83,7 @@ export const startVault = async (vaultRoot: string): Promise<Vault> => {
           listeners.delete(listener);
         };
       },
+      read: () => Promise.reject(new Error("Vault not found")),
       stop: () => Promise.resolve(),
     };
   }
@@ -161,6 +175,7 @@ export const startVault = async (vaultRoot: string): Promise<Vault> => {
         listeners.delete(listener);
       };
     },
+    read: (relativePath: string) => readCanvas(vaultRoot, relativePath),
     stop: () => watcher.close(),
   };
 };

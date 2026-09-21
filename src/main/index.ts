@@ -12,6 +12,9 @@ const start = async () => {
 
   const vault = await startVault(VAULT_ROOT);
 
+  ipcMain.handle("vault:read", (_event, relativePath: string) =>
+    vault.read(relativePath)
+  );
   ipcMain.handle("vault:tree", () => vault.getTree());
 
   app.on("will-quit", () => {

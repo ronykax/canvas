@@ -1,6 +1,6 @@
 import { useGesture } from "@use-gesture/react";
 import { cn } from "cn";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import Xarrow from "react-xarrows";
 
@@ -58,6 +58,10 @@ interface CanvasEdge {
   toSide?: Side;
 }
 
+interface CanvasProps {
+  path: string | null;
+}
+
 const PRESET_COLORS = {
   "1": "#fb464c",
   "2": "#e9973f",
@@ -72,83 +76,6 @@ const BACKGROUND_SIZE = {
   ratio: "contain",
   repeat: "auto",
 } as const;
-
-const DEMO_NODES: CanvasNode[] = [
-  {
-    color: "4",
-    height: 400,
-    id: "x7Kp2Q",
-    label: "Inbox",
-    type: "group",
-    width: 640,
-    x: 10,
-    y: 0,
-  },
-  {
-    color: "1",
-    height: 120,
-    id: "m4Zt8R",
-    text: "# Hello\n\nA **text** node",
-    type: "text",
-    width: 240,
-    x: 50,
-    y: 60,
-  },
-  {
-    color: "6",
-    file: "photo.png",
-    height: 160,
-    id: "Qa9Lx3",
-    subpath: "#heading",
-    type: "file",
-    width: 240,
-    x: 330,
-    y: 100,
-  },
-  {
-    color: "#3b82f6",
-    height: 80,
-    id: "V2nH7k",
-    type: "link",
-    url: "https://jsoncanvas.org",
-    width: 240,
-    x: 50,
-    y: 220,
-  },
-];
-
-const DEMO_EDGES: CanvasEdge[] = [
-  {
-    color: "5",
-    fromEnd: "none",
-    fromNode: "m4Zt8R",
-    fromSide: "right",
-    id: "e1",
-    label: "see also",
-    toEnd: "arrow",
-    toNode: "Qa9Lx3",
-    toSide: "left",
-  },
-  {
-    color: "#FF0000",
-    fromEnd: "arrow",
-    fromNode: "Qa9Lx3",
-    fromSide: "bottom",
-    id: "e2",
-    toEnd: "arrow",
-    toNode: "V2nH7k",
-    toSide: "right",
-  },
-  {
-    fromEnd: "none",
-    fromNode: "V2nH7k",
-    fromSide: "top",
-    id: "e3",
-    toEnd: "none",
-    toNode: "m4Zt8R",
-    toSide: "bottom",
-  },
-];
 
 const isPresetColor = (color: string): color is keyof typeof PRESET_COLORS =>
   Object.hasOwn(PRESET_COLORS, color);
@@ -232,7 +159,7 @@ const nodeBody = (node: CanvasNode): ReactNode => {
   }
 };
 
-export const Canvas = () => {
+export const Canvas = ({ path }: CanvasProps) => {
   const canvasRef = useRef<HTMLDivElement | null>(null);
 
   const [camera, setCamera] = useState<Camera>({
@@ -241,10 +168,38 @@ export const Canvas = () => {
     y: 0,
   });
 
-  const [nodes, setNodes] = useState(DEMO_NODES);
-  const [edges, setEdges] = useState(DEMO_EDGES);
+  const [nodes, setNodes] = useState<CanvasNode[]>([]);
+  const [edges, setEdges] = useState<CanvasEdge[]>([]);
 
-  void [setNodes, setEdges];
+  useEffect(() => {
+    if (!path) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const file = JSON.parse(await window.vault.read(path));
+
+        if (!cancelled) {
+          setNodes(Array.isArray(file.nodes) ? file.nodes : []);
+          setEdges(Array.isArray(file.edges) ? file.edges : []);
+        }
+      } catch {
+        if (!cancelled) {
+          setNodes([]);
+          setEdges([]);
+        }
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [path]);
 
   useGesture(
     {

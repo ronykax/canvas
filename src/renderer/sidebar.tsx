@@ -5,6 +5,7 @@ import {
   StickyNote03Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { cn } from "cn";
 import { Fragment, useEffect, useState } from "react";
 
 import type { VaultApi, VaultTree } from "../shared/vault";
@@ -30,11 +31,18 @@ interface TreeFolder {
 
 type TreeNode = TreeFile | TreeFolder;
 
+interface SidebarProps {
+  onSelect: (path: string) => void;
+  selectedPath: string | null;
+}
+
 interface TreeItemsProps {
   collapsed: ReadonlySet<string>;
   depth: number;
   nodes: TreeNode[];
+  onSelect: (path: string) => void;
   onToggle: (path: string) => void;
+  selectedPath: string | null;
 }
 
 const sortTree = (nodes: TreeNode[]): TreeNode[] =>
@@ -114,7 +122,14 @@ const buildTree = ({ dirs, files }: VaultTree): TreeNode[] => {
 const rowClass =
   "flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200";
 
-const TreeItems = ({ collapsed, depth, nodes, onToggle }: TreeItemsProps) => (
+const TreeItems = ({
+  collapsed,
+  depth,
+  nodes,
+  onSelect,
+  onToggle,
+  selectedPath,
+}: TreeItemsProps) => (
   <>
     {nodes.map((node) => {
       if (node.kind === "folder") {
@@ -140,7 +155,9 @@ const TreeItems = ({ collapsed, depth, nodes, onToggle }: TreeItemsProps) => (
                 collapsed={collapsed}
                 depth={depth + 1}
                 nodes={node.children}
+                onSelect={onSelect}
                 onToggle={onToggle}
+                selectedPath={selectedPath}
               />
             ) : null}
           </Fragment>
@@ -151,8 +168,9 @@ const TreeItems = ({ collapsed, depth, nodes, onToggle }: TreeItemsProps) => (
         <button
           key={node.path}
           type="button"
-          className={rowClass}
+          className={cn(rowClass, selectedPath === node.path && "bg-zinc-200")}
           style={{ paddingLeft: 8 + depth * 24 }}
+          onClick={() => onSelect(node.path)}
         >
           <HugeiconsIcon
             icon={StickyNote03Icon}
@@ -166,7 +184,7 @@ const TreeItems = ({ collapsed, depth, nodes, onToggle }: TreeItemsProps) => (
   </>
 );
 
-export const Sidebar = () => {
+export const Sidebar = ({ onSelect, selectedPath }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(new Set<string>());
   const [tree, setTree] = useState<VaultTree>({ dirs: [], files: [] });
 
@@ -213,7 +231,9 @@ export const Sidebar = () => {
           collapsed={collapsed}
           depth={0}
           nodes={buildTree(tree)}
+          onSelect={onSelect}
           onToggle={toggleFolder}
+          selectedPath={selectedPath}
         />
       </div>
     </div>

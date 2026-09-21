@@ -15,6 +15,8 @@ const vault: VaultApi = {
       ipcRenderer.removeListener("vault:changed", onChanged);
     };
   },
+  read: (relativePath: string) =>
+    ipcRenderer.invoke("vault:read", relativePath),
   tree: () => ipcRenderer.invoke("vault:tree"),
 };
 
