@@ -131,7 +131,7 @@ const TreeItems = ({ collapsed, depth, nodes, onToggle }: TreeItemsProps) => (
               <HugeiconsIcon
                 icon={open ? ChevronDownIcon : ChevronRightIcon}
                 strokeWidth={2}
-                className="size-4"
+                className="size-4 opacity-50"
               />
               {node.name}
             </button>
@@ -157,7 +157,7 @@ const TreeItems = ({ collapsed, depth, nodes, onToggle }: TreeItemsProps) => (
           <HugeiconsIcon
             icon={StickyNote03Icon}
             strokeWidth={2}
-            className="size-4"
+            className="size-4 opacity-50"
           />
           {node.name}
         </button>
