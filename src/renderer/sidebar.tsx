@@ -2,7 +2,6 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   SearchIcon,
-  StickyNote03Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "cn";
@@ -121,7 +120,7 @@ const buildTree = ({ dirs, files }: VaultTree): TreeNode[] => {
 };
 
 const rowClass =
-  "flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-zinc-200 dark:hover:bg-zinc-800 dark:text-white duration-100";
+  "flex items-center gap-2 rounded-lg opacity-75 p-2 text-sm hover:bg-zinc-200 dark:hover:bg-zinc-800 dark:text-white duration-100";
 
 const TreeItems = ({
   collapsed,
@@ -171,16 +170,12 @@ const TreeItems = ({
           type="button"
           className={cn(
             rowClass,
-            selectedPath === node.path && "bg-zinc-200 dark:bg-zinc-800"
+            selectedPath === node.path &&
+              "bg-zinc-200 opacity-100 dark:bg-zinc-800"
           )}
-          style={{ paddingLeft: 8 + depth * 24 }}
+          style={{ paddingLeft: 8 + (depth + 1) * 24 }}
           onClick={() => onSelect(node.path)}
         >
-          <HugeiconsIcon
-            icon={StickyNote03Icon}
-            strokeWidth={2}
-            className="size-4 opacity-50"
-          />
           {node.name}
         </button>
       );
