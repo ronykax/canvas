@@ -2,7 +2,6 @@ import { useGesture } from "@use-gesture/react";
 import { cn } from "cn";
 import { useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import { useXarrow } from "react-xarrows";
 
 import { colorClass, colorOf } from "./color";
 import type { Side } from "./edge";
@@ -121,7 +120,7 @@ const Handle = ({ nodeId, onConnect, open, side }: HandleProps) => {
     >
       <div
         className={cn(
-          "size-3 rounded-full bg-zinc-900 opacity-0 transition-opacity group-hover/side:opacity-100 dark:bg-white",
+          "size-3 cursor-move rounded-full bg-zinc-900 opacity-0 transition-opacity group-hover/side:opacity-100 dark:bg-white",
           open && "opacity-100"
         )}
       />
@@ -230,7 +229,6 @@ export const Node = ({
 }: NodeProps) => {
   const nodeRef = useRef<HTMLDivElement | null>(null);
   const skipMove = useRef(false);
-  useXarrow();
 
   useGesture(
     {
