@@ -7,7 +7,7 @@ import { Xwrapper } from "react-xarrows";
 import type { CanvasEdge } from "./edge";
 import { Edge } from "./edge";
 import type { CanvasNode } from "./node";
-import { Node } from "./node";
+import { dragThreshold, Node } from "./node";
 
 interface Camera {
   scale: number;
@@ -23,8 +23,6 @@ interface DragStart {
   scale: number;
   starts: Record<string, { x: number; y: number }>;
 }
-
-const selectThreshold = 4;
 
 const isAdditive = (event: Event | null) =>
   event instanceof MouseEvent &&
@@ -105,20 +103,16 @@ export const Canvas = ({ path }: CanvasProps) => {
   const pressedNode = useRef<Element | null>(null);
   const additive = useRef(false);
 
-  const publishSelection = (selection: SelectionEvent["selection"]) => {
-    // clearSelection emits before the store is emptied.
+  const syncSelection = (selection: SelectionEvent["selection"]) => {
+    // clearSelection emits before it empties the store.
     queueMicrotask(() => {
-      const selected = selection.getSelection();
       const node = pressedNode.current;
 
-      // A plain click selects the node. Viselect toggles the only selected one off.
-      if (selected.length === 0 && node && !additive.current) {
+      if (selection.getSelection().length === 0 && node && !additive.current) {
         selection.select(node, true);
-        setSelectedIds([node.id]);
-        return;
       }
 
-      setSelectedIds(idsOf(selected));
+      setSelectedIds(idsOf(selection.getSelection()));
     });
   };
 
@@ -157,18 +151,15 @@ export const Canvas = ({ path }: CanvasProps) => {
     selection.clearSelection(true, true);
   };
 
-  const onSelectMove = ({ event, selection, store }: SelectionEvent) => {
-    if (!event) {
-      publishSelection(selection);
-      return;
+  const onSelectMove = ({ event, store }: SelectionEvent) => {
+    if (event) {
+      setSelectedIds(idsOf(store.selected));
     }
-
-    setSelectedIds(idsOf(store.selected));
   };
 
   const onSelectStop = ({ event, selection, store }: SelectionEvent) => {
     if (!event) {
-      publishSelection(selection);
+      syncSelection(selection);
       return;
     }
 
@@ -263,7 +254,7 @@ export const Canvas = ({ path }: CanvasProps) => {
       <SelectionArea
         behaviour={{
           intersect: "cover",
-          startThreshold: { x: selectThreshold, y: selectThreshold },
+          startThreshold: { x: dragThreshold, y: dragThreshold },
         }}
         className="absolute inset-0"
         features={{

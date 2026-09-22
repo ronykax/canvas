@@ -51,6 +51,8 @@ interface NodeProps {
   selected: boolean;
 }
 
+export const dragThreshold = 4;
+
 const BACKGROUND_SIZE = {
   cover: "cover",
   ratio: "contain",
@@ -149,7 +151,7 @@ export const Node = ({ node, onDrag, selected }: NodeProps) => {
       },
     },
     {
-      drag: { threshold: 4 },
+      drag: { threshold: dragThreshold },
       target: nodeRef,
     }
   );
