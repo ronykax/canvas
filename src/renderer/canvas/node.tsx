@@ -130,6 +130,21 @@ const Handle = ({ nodeId, onConnect, open, side }: HandleProps) => {
 
 export const dragThreshold = 4;
 
+// Label and edges select the group. The rest of the box does not.
+export const groupInterior = (target: EventTarget | null) => {
+  if (!(target instanceof Element)) {
+    return null;
+  }
+
+  const node = target.closest(".canvas-group");
+
+  if (!node || target.closest(".canvas-group-label, .canvas-group-edge")) {
+    return null;
+  }
+
+  return node;
+};
+
 const BACKGROUND_SIZE = {
   cover: "cover",
   ratio: "contain",
@@ -175,6 +190,7 @@ const roundedClass = (node: CanvasNode) =>
 const nodeClassName = (node: CanvasNode, selected: boolean) =>
   cn(
     "canvas-node absolute touch-none",
+    node.type === "group" && "canvas-group",
     roundedClass(node),
     selected && "ring-2 ring-zinc-900 ring-inset dark:ring-white",
     colorClass(node.color)
@@ -211,9 +227,6 @@ const nodeBody = (node: CanvasNode): ReactNode => {
     case "link": {
       return node.url;
     }
-    case "group": {
-      return node.label;
-    }
     default: {
       return null;
     }
@@ -235,9 +248,12 @@ export const Node = ({
       onDrag: ({ event, first, movement: [movementX, movementY] }) => {
         if (first) {
           const { target } = event;
-          skipMove.current =
+          const onHandle =
             target instanceof Element &&
             target.closest(".canvas-handle") !== null;
+          // Unselected interior stays put so a marquee can start there.
+          skipMove.current =
+            onHandle || (!selected && groupInterior(target) !== null);
         }
 
         if (skipMove.current) {
@@ -260,6 +276,11 @@ export const Node = ({
       ref={nodeRef}
       style={nodeStyle(node)}
     >
+      {node.type === "group" && node.label ? (
+        <div className="canvas-group-label absolute bottom-full left-0 touch-none pb-1 whitespace-nowrap">
+          {node.label}
+        </div>
+      ) : null}
       <div className={cn("size-full overflow-hidden p-4", roundedClass(node))}>
         {nodeBody(node)}
       </div>
@@ -267,6 +288,7 @@ export const Node = ({
         <div
           className={cn(
             "group/side pointer-events-auto absolute",
+            node.type === "group" && "canvas-group-edge",
             edgeBand[side]
           )}
           key={side}

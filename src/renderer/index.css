@@ -7,6 +7,10 @@
   }
 }
 
+.always-on-top {
+  z-index: calc(infinity);
+}
+
 .app-drag {
   -webkit-app-region: drag;
 }

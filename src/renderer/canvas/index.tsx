@@ -6,12 +6,18 @@ import { useEffect, useRef, useState } from "react";
 import type { CanvasEdge, Side } from "./edge";
 import { Edge, isSide, oppositeSide } from "./edge";
 import type { CanvasNode } from "./node";
-import { dragThreshold, Node } from "./node";
+import { dragThreshold, groupInterior, Node } from "./node";
 
 interface Camera {
   scale: number;
   x: number;
   y: number;
+}
+
+interface ActionBarProps {
+  camera: Camera;
+  nodes: CanvasNode[];
+  selectedIds: string[];
 }
 
 interface CanvasProps {
@@ -108,6 +114,32 @@ const isAdditive = (event: Event | null) =>
 const idsOf = (elements: { id: string }[]) =>
   elements.map((element) => element.id);
 
+const insideGroup = (group: CanvasNode, node: CanvasNode) =>
+  node.id !== group.id &&
+  node.x >= group.x &&
+  node.y >= group.y &&
+  node.x + node.width <= group.x + group.width &&
+  node.y + node.height <= group.y + group.height;
+
+const dragStarts = (nodes: CanvasNode[], movingIds: string[]) => {
+  const moving = new Set(movingIds);
+  const groups = nodes.filter(
+    (node) => node.type === "group" && moving.has(node.id)
+  );
+  const starts: DragStart["starts"] = {};
+
+  for (const node of nodes) {
+    if (
+      moving.has(node.id) ||
+      groups.some((group) => insideGroup(group, node))
+    ) {
+      starts[node.id] = { x: node.x, y: node.y };
+    }
+  }
+
+  return starts;
+};
+
 const movedNodes = (
   nodes: CanvasNode[],
   starts: DragStart["starts"],
@@ -130,7 +162,7 @@ const movedNodes = (
 
 const Dots = ({ scale, x, y }: Camera) => {
   const minScale = 0.1;
-  const dotGap = 36;
+  const dotGap = 32;
   const dotScale = Math.max(scale, minScale);
   const gap = dotGap * dotScale;
   const offset = (value: number) => ((value % gap) + gap) % gap;
@@ -163,6 +195,38 @@ const Dots = ({ scale, x, y }: Camera) => {
   );
 };
 
+const ActionBar = ({ camera, nodes, selectedIds }: ActionBarProps) => {
+  const gap = 16;
+  const selected = nodes.filter((node) => selectedIds.includes(node.id));
+
+  if (selected.length === 0) {
+    return null;
+  }
+
+  let left = Number.POSITIVE_INFINITY;
+  let right = Number.NEGATIVE_INFINITY;
+  let top = Number.POSITIVE_INFINITY;
+
+  for (const node of selected) {
+    left = Math.min(left, node.x);
+    right = Math.max(right, node.x + node.width);
+    top = Math.min(top, node.y);
+  }
+
+  return (
+    <div
+      className="always-on-top absolute"
+      style={{
+        left: `${camera.x + ((left + right) / 2) * camera.scale}px`,
+        top: `${camera.y + top * camera.scale - gap}px`,
+        transform: "translate(-50%, -100%)",
+      }}
+    >
+      hello world
+    </div>
+  );
+};
+
 export const Canvas = ({ path }: CanvasProps) => {
   const canvasRef = useRef<HTMLDivElement | null>(null);
 
@@ -179,12 +243,19 @@ export const Canvas = ({ path }: CanvasProps) => {
   const dragRef = useRef<DragStart | null>(null);
   const marquee = useRef(false);
   const pressedNode = useRef<Element | null>(null);
+  const groupTap = useRef<Element | null>(null);
   const additive = useRef(false);
 
   const syncSelection = (selection: SelectionEvent["selection"]) => {
     // clearSelection emits before it empties the store.
     queueMicrotask(() => {
+      const tappedGroup = groupTap.current;
       const node = pressedNode.current;
+      groupTap.current = null;
+
+      if (tappedGroup) {
+        selection.deselect(tappedGroup, true);
+      }
 
       if (selection.getSelection().length === 0 && node && !additive.current) {
         selection.select(node, true);
@@ -197,9 +268,19 @@ export const Canvas = ({ path }: CanvasProps) => {
   const onBeforeStart = ({ event }: SelectionEvent) => {
     marquee.current = false;
     additive.current = isAdditive(event);
-    const target = event?.target;
-    pressedNode.current =
+    const target = event?.target ?? null;
+    const interior = groupInterior(target);
+    const node =
       target instanceof Element ? target.closest(".canvas-node") : null;
+
+    if (interior && !selectedIds.includes(interior.id)) {
+      pressedNode.current = null;
+      groupTap.current = interior;
+      return;
+    }
+
+    pressedNode.current = node;
+    groupTap.current = null;
   };
 
   const onBeforeDrag = ({ event, selection }: SelectionEvent) => {
@@ -241,6 +322,7 @@ export const Canvas = ({ path }: CanvasProps) => {
       return;
     }
 
+    groupTap.current = null;
     setSelectedIds(idsOf(store.stored));
   };
 
@@ -251,16 +333,13 @@ export const Canvas = ({ path }: CanvasProps) => {
     first: boolean
   ) => {
     if (first) {
-      const moving = new Set(selectedIds.includes(id) ? selectedIds : [id]);
-      const starts: DragStart["starts"] = {};
-
-      for (const node of nodes) {
-        if (moving.has(node.id)) {
-          starts[node.id] = { x: node.x, y: node.y };
-        }
-      }
-
-      dragRef.current = { scale: camera.scale, starts };
+      dragRef.current = {
+        scale: camera.scale,
+        starts: dragStarts(
+          nodes,
+          selectedIds.includes(id) ? selectedIds : [id]
+        ),
+      };
     }
 
     const drag = dragRef.current;
@@ -449,6 +528,7 @@ export const Canvas = ({ path }: CanvasProps) => {
           </svg>
         </div>
       </SelectionArea>
+      <ActionBar camera={camera} nodes={nodes} selectedIds={selectedIds} />
     </div>
   );
 };
