@@ -2,10 +2,10 @@ import { useGesture } from "@use-gesture/react";
 import { SelectionArea } from "@viselect/react";
 import type { SelectionEvent } from "@viselect/react";
 import { useEffect, useRef, useState } from "react";
-import { Xwrapper } from "react-xarrows";
+import { useXarrow, Xwrapper } from "react-xarrows";
 
-import type { CanvasEdge } from "./edge";
-import { Edge } from "./edge";
+import type { CanvasEdge, Side } from "./edge";
+import { Edge, isSide } from "./edge";
 import type { CanvasNode } from "./node";
 import { dragThreshold, Node } from "./node";
 
@@ -23,6 +23,80 @@ interface DragStart {
   scale: number;
   starts: Record<string, { x: number; y: number }>;
 }
+
+interface ConnectDraft {
+  fromNode: string;
+  fromSide: Side;
+  overNode?: string;
+  overSide?: Side;
+  x: number;
+  y: number;
+}
+
+interface ConnectCursorProps {
+  x: number;
+  y: number;
+}
+
+const connectCursorId = "canvas-connect-cursor";
+
+const ConnectCursor = ({ x, y }: ConnectCursorProps) => {
+  useXarrow();
+
+  return (
+    <div
+      className="pointer-events-none absolute size-0"
+      id={connectCursorId}
+      style={{ left: `${x}px`, top: `${y}px` }}
+    />
+  );
+};
+
+// The last match paints above the others.
+const handleAt = (clientX: number, clientY: number) => {
+  let match: HTMLElement | null = null;
+
+  for (const element of document.querySelectorAll(".canvas-handle")) {
+    if (!(element instanceof HTMLElement)) {
+      continue;
+    }
+
+    const box = element.getBoundingClientRect();
+    const inside =
+      clientX >= box.left &&
+      clientX <= box.right &&
+      clientY >= box.top &&
+      clientY <= box.bottom;
+
+    if (inside) {
+      match = element;
+    }
+  }
+
+  return match;
+};
+
+const dropAt = (fromNode: string, clientX: number, clientY: number) => {
+  const handle = handleAt(clientX, clientY);
+  const toNode = handle?.dataset.nodeId;
+  const toSide = handle?.dataset.side;
+
+  if (!toNode || toNode === fromNode || !isSide(toSide)) {
+    return null;
+  }
+
+  return { toNode, toSide };
+};
+
+const openSide = (draft: ConnectDraft | null, nodeId: string) => {
+  if (draft?.fromNode === nodeId) {
+    return draft.fromSide;
+  }
+
+  if (draft?.overNode === nodeId) {
+    return draft.overSide;
+  }
+};
 
 const isAdditive = (event: Event | null) =>
   event instanceof MouseEvent &&
@@ -98,6 +172,7 @@ export const Canvas = ({ path }: CanvasProps) => {
   const [nodes, setNodes] = useState<CanvasNode[]>([]);
   const [edges, setEdges] = useState<CanvasEdge[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [draft, setDraft] = useState<ConnectDraft | null>(null);
   const dragRef = useRef<DragStart | null>(null);
   const marquee = useRef(false);
   const pressedNode = useRef<Element | null>(null);
@@ -201,6 +276,53 @@ export const Canvas = ({ path }: CanvasProps) => {
     );
   };
 
+  const onConnect = (
+    nodeId: string,
+    side: Side,
+    clientX: number,
+    clientY: number,
+    last: boolean
+  ) => {
+    const bounds = canvasRef.current?.getBoundingClientRect();
+
+    if (!bounds) {
+      if (last) {
+        setDraft(null);
+      }
+
+      return;
+    }
+
+    const drop = dropAt(nodeId, clientX, clientY);
+
+    if (!last) {
+      setDraft({
+        fromNode: nodeId,
+        fromSide: side,
+        overNode: drop?.toNode,
+        overSide: drop?.toSide,
+        x: clientX - bounds.left,
+        y: clientY - bounds.top,
+      });
+      return;
+    }
+
+    if (drop) {
+      setEdges((current) => [
+        ...current,
+        {
+          fromNode: nodeId,
+          fromSide: side,
+          id: crypto.randomUUID(),
+          toNode: drop.toNode,
+          toSide: drop.toSide,
+        },
+      ]);
+    }
+
+    setDraft(null);
+  };
+
   useEffect(() => {
     if (!path) {
       return;
@@ -283,7 +405,9 @@ export const Canvas = ({ path }: CanvasProps) => {
               <Node
                 key={node.id}
                 node={node}
+                onConnect={onConnect}
                 onDrag={onNodeDrag}
+                openSide={openSide(draft, node.id)}
                 selected={selectedIds.includes(node.id)}
               />
             ))}
@@ -291,6 +415,19 @@ export const Canvas = ({ path }: CanvasProps) => {
           {edges.map((edge) => (
             <Edge edge={edge} key={edge.id} />
           ))}
+          {draft ? (
+            <>
+              <ConnectCursor x={draft.x} y={draft.y} />
+              <Edge
+                edge={{
+                  fromNode: draft.fromNode,
+                  fromSide: draft.fromSide,
+                  id: "draft",
+                  toNode: connectCursorId,
+                }}
+              />
+            </>
+          ) : null}
         </Xwrapper>
       </SelectionArea>
     </div>

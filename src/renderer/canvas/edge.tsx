@@ -2,7 +2,15 @@ import Xarrow from "react-xarrows";
 
 import { colorOf } from "./color";
 
-type Side = "bottom" | "left" | "right" | "top";
+export const sides = ["bottom", "left", "right", "top"] as const;
+
+export type Side = (typeof sides)[number];
+
+export const isSide = (value: string | null | undefined): value is Side =>
+  value === "bottom" ||
+  value === "left" ||
+  value === "right" ||
+  value === "top";
 
 export interface CanvasEdge {
   color?: string;
@@ -25,22 +33,23 @@ export const Edge = ({ edge }: EdgeProps) => {
 
   return (
     <Xarrow
-      color={color}
+      color={color ?? "currentColor"}
       divContainerStyle={{ pointerEvents: "none" }}
       end={edge.toNode}
-      endAnchor={edge.toSide}
+      endAnchor={edge.toSide ?? "auto"}
       labels={
         edge.label ? (
           <span style={{ color, fontSize: 12 }}>{edge.label}</span>
         ) : undefined
       }
       passProps={{ pointerEvents: "none" }}
-      path="straight"
+      path="smooth"
       showHead={(edge.toEnd ?? "arrow") === "arrow"}
       showTail={edge.fromEnd === "arrow"}
       start={edge.fromNode}
-      startAnchor={edge.fromSide}
+      startAnchor={edge.fromSide ?? "auto"}
       strokeWidth={2}
+      curveness={1}
     />
   );
 };
